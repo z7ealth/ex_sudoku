@@ -12,6 +12,7 @@ defmodule ExSudoku do
     unit_list = get_unit_list()
     units = get_units(squares, unit_list)
     peers = get_peers(units)
+    parsed_grid = parse_grid(nil, squares)
 
     %{
       squares: squares,
@@ -50,5 +51,11 @@ defmodule ExSudoku do
       |> (&{k, &1}).()
     end)
     |> Enum.into(%{})
+  end
+
+  defp parse_grid(_grid \\ "", squares) do
+    values = Enum.map(squares, &{&1, @digits})
+
+    dbg(values)
   end
 end
