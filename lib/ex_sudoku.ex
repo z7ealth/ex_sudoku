@@ -14,9 +14,9 @@ defmodule ExSudoku do
 
   @squares cross(@rows, @cols)
 
-  @first for c <- @cols, do: cross(@rows, c)
+  @first for c <- @cols, do: cross(@rows, [c])
 
-  @second for r <- @rows, do: cross(r, @cols)
+  @second for r <- @rows, do: cross([r], @cols)
 
   @third for rs <- ~w(ABC DEF GHI),
              cs <- ~w(123 456 789),
@@ -40,15 +40,13 @@ defmodule ExSudoku do
   @grid_error "Wrong grid format."
 
   def run do
-    units = get_units(unit_list)
-    peers = get_peers(units)
-    parsed_grid = parse_grid(@grid)
+    parse_grid(@grid)
 
     %{
       squares: @squares,
-      unit_list: unit_list,
-      units: units,
-      peers: peers
+      unit_list: @unit_list,
+      units: @units,
+      peers: @peers
     }
   end
 
@@ -72,20 +70,20 @@ defmodule ExSudoku do
     other_values = delete_value(values, s, d)
 
     if Enum.all?(other_values, &eliminate(values, s, &1)), do: values, else: false
+  end
 
-    defp eliminate(values, s, d) when d not in values[s], do: values
+  defp eliminate(values, s, d) when d not in values[s], do: values
 
-    defp eliminate(values, s, d) do
-      values_s = eliminate(values, s, d)
+  defp eliminate(values, s, d) do
+    values_s = eliminate(values, s, d)
 
-      cond do
-        length(values_s) == 0 ->
-          false
+    cond do
+      length(values_s) == 0 ->
+        false
 
-        length(values_s) == 1 ->
-          d2 = values_s
-          if Enum.all?(other_values, &eliminate(values, &1, d2)), do: values, else: false
-      end
+      length(values_s) == 1 ->
+        d2 = values_s
+        if Enum.all?(@peers[s], &eliminate(values, &1, d2)), do: values, else: false
     end
   end
 end
